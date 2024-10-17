@@ -10,7 +10,6 @@ import CoreData
 import Model3DView
 import Vision
 
-
 struct ContentView: View {
     @State private var currentDate = Date()
     @State var camera = PerspectiveCamera()
@@ -85,6 +84,7 @@ struct ContentView: View {
         currentDate = Date()
     }
 }
+
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
