@@ -8,6 +8,7 @@
 import SwiftUI
 import CoreData
 import Model3DView
+import UserNotifications
 import Vision
 
 struct ContentView: View {
@@ -71,8 +72,12 @@ struct ContentView: View {
                 .padding()
         }
         .onAppear {
+            requestNotificationPermissions()
             let timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
                 currentDate = Date()
+                if buildDate.timeIntervalSince(currentDate) <= 11 {
+                    scheduleNotification()
+                }
             }
             RunLoop.current.add(timer, forMode: .common)
         }
@@ -82,6 +87,29 @@ struct ContentView: View {
         let defaults = UserDefaults.standard
         defaults.removeObject(forKey: "BuildDate")
         currentDate = Date()
+    }
+
+    func requestNotificationPermissions() {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+            if let error = error {
+                print("Error requesting notification permissions: \(error)")
+            }
+        }
+    }
+
+    func scheduleNotification() {
+        let content = UNMutableNotificationContent()
+        content.title = "Need rebuild"
+        content.body = "Week is up :("
+        content.sound = UNNotificationSound.default
+
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+        let request = UNNotificationRequest(identifier: "countdownComplete", content: content, trigger: trigger)
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("Error scheduling notification: \(error)")
+            }
+        }
     }
 }
 
